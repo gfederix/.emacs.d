@@ -63,13 +63,34 @@
 ;; Python
 ;; https://www.emacswiki.org/emacs/PythonProgrammingInEmacs
 ;; https://realpython.com/emacs-the-best-python-editor/
-(use-package elpy
-  :straight t
-  :ensure t
-  :init (elpy-enable))
-(when (load "flycheck" t t)
-  (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
-  (add-hook 'elpy-mode-hook 'flycheck-mode)) ;activate flycheck
+;; (use-package elpy
+;;   :straight t
+;;   :ensure t
+;;   :init (elpy-enable))
+;;;; ELPY
+(use-package company :straight t :ensure t)
+(use-package highlight-indentation :straight t :ensure t)
+(use-package pyvenv :straight t :ensure t)
+(use-package yasnippet :straight t :ensure t)
+(use-package s :straight t :ensure t)
+
+(add-to-list 'load-path "/home/federix/.emacs.d/elpy")
+(load "elpy")
+(load "elpy-rpc")
+(load "elpy-shell")
+(load "elpy-profile")
+(load "elpy-refactor")
+(load "elpy-django")
+(elpy-enable)
+
+(add-hook 'elpy-mode-hook
+          (lambda () (local-set-key (kbd "M-.") 'elpy-goto-definition)))
+
+(use-package ein :straight t :ensure t)
+
+;; (when (load "flycheck" t t)
+;;   (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+;;   (add-hook 'elpy-mode-hook 'flycheck-mode)) ;activate flycheck
 
 ;; (use-package pyvenv :straight t)
 ;; (use-package virtualenvwrapper :straight t)

@@ -1,0 +1,3 @@
+[submodule "elpy"]
+	path = elpy
+	url = git@github.com:jorgenschaefer/elpy.git
