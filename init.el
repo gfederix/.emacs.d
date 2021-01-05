@@ -31,11 +31,28 @@
 ;; (use-package ace-window :straight t)
 ;; (global-set-key (kbd "M-o") 'ace-window)
 ;; (use-package switch-window :straight t)
-(use-package winum :straight t)		;C-w [number]
-(winum-mode)
+(use-package winum
+  :straight t   ;C-w [number]
+  :ensure t
+  :init (winum-mode)
+  :bind (:map winum-keymap
+	 ("C-`" . winum-select-window-by-number)
+	 ("M-1" . winum-select-window-1)
+	 ("M-2" . winum-select-window-2)
+	 ("M-3" . winum-select-window-3)
+	 ("M-4" . winum-select-window-4)
+	 ("M-5" . winum-select-window-5)
+	 ("M-6" . winum-select-window-6)
+	 ("M-7" . winum-select-window-7)
+	 ("M-8" . winum-select-window-8)
+	 ("M-9" . winum-select-window-9)
+	 ("M-0" . winum-select-window-0-or-10)))
 
-(use-package which-key :straight t)
-(which-key-mode)
+
+(use-package which-key
+  :straight t
+  :ensure t
+  :init (which-key-mode))
 
 ;; Helm
 (use-package helm
