@@ -22,9 +22,13 @@
 
 ;; Theme
 ;; (use-package material-theme :straight t)
-;; (use-package spacemacs-theme :straight t)
-(straight-use-package 'spacemacs-theme)
-(load-theme 'spacemacs-dark t)
+(use-package spacemacs-theme
+  :straight t
+  :ensure t
+  :defer t
+  :init (load-theme 'spacemacs-dark t))
+;; (straight-use-package 'spacemacs-theme)
+;; (load-theme 'spacemacs-dark t)
 
 ;; Numerate Window
 ;; Switching windows:
