@@ -1,9 +1,25 @@
 ;; Global configurations
-(tool-bar-mode 0)
+(tool-bar-mode -1)
 (setq inhibit-startup-message t)
 (global-linum-mode)
-(show-paren-mode 1)
+(show-paren-mode)
+(electric-pair-mode)
+(line-number-mode)
+(column-number-mode)
+(add-to-list 'load-path (expand-file-name "site-lisp" user-emacs-directory))
 
+(setq-default display-fill-column-indicator-column 80)
+(add-hook 'prog-mode-hook 'display-fill-column-indicator-mode)
+
+;; (require 'highlight-beyond-fill-column)
+;; (setq-default fill-column 80)
+;; (add-hook 'prog-mode-hook 'highlight-beyond-fill-column)
+;; (custom-set-faces '(highlight-beyond-fill-column-face
+;;                     ((t (:foreground "red" )))))
+;; (add-hook 'prog-mode-hook 'highlight-beyond-fill-column)
+(setq use-package-verbose t)
+(use-package highlight-beyond-fill-column
+  :load-path "lisp")
 ;; Straight with use-package
 (defvar bootstrap-version)
 (let ((bootstrap-file
@@ -36,7 +52,7 @@
 ;; (global-set-key (kbd "M-o") 'ace-window)
 ;; (use-package switch-window :straight t)
 (use-package winum
-  :straight t   ;C-w [number]
+  :straight t				; C-w [number]
   :ensure t
   :init (winum-mode)
   :bind (:map winum-keymap
@@ -51,6 +67,10 @@
 	 ("M-8" . winum-select-window-8)
 	 ("M-9" . winum-select-window-9)
 	 ("M-0" . winum-select-window-0-or-10)))
+(use-package rainbow-delimiters
+  :straight t
+  :ensure t
+  :hook (prog-mode . rainbow-delimiters-mode))
 
 
 (use-package which-key
@@ -61,25 +81,33 @@
 ;; Helm
 (use-package helm
   :straight t
-  :init (helm-mode 1)
+  :ensure t
+  :init (helm-mode)
   :bind (("M-x" . helm-M-x)
 	("C-x C-f" . helm-find-files)))
 
 ;; Git
-(use-package magit :straight t)
+(use-package magit :straight t :ensure t)
 (use-package projectile
   :straight t
   :ensure t
-  :init (projectile-mode +1)
+  :init (projectile-mode)
   :bind (( "s-p" . projectile-command-map)
-	 ("C-c p" . projectile-command-map)
-	 ))
+	 ("C-c p" . projectile-command-map)))
 
 ;; Flycheck
 (use-package flycheck
   :straight t
   :ensure t
   :init (global-flycheck-mode))
+
+(use-package pyvenv :straight t :ensure t)
+(use-package auto-virtualenv :straight t :ensure t
+  :requires (pyvenv)
+  :hook ((python-mode .  auto-virtualenv-set-virtualenv)
+	 (window-configuration-change . auto-virtualenv-set-virtualenv)
+	 (focus-in .  auto-virtualenv-set-virtualenv)
+	 ))
 
 ;; Python
 ;; https://www.emacswiki.org/emacs/PythonProgrammingInEmacs
@@ -88,33 +116,48 @@
 ;;   :straight t
 ;;   :ensure t
 ;;   :init (elpy-enable))
-;;;; ELPY
-(use-package company :straight t :ensure t)
-(use-package highlight-indentation :straight t :ensure t)
-(use-package pyvenv :straight t :ensure t)
-(use-package yasnippet :straight t :ensure t)
-(use-package s :straight t :ensure t)
+(setq elpy-from-git nil)
+(if elpy-from-git
+    (progn
+      (use-package company :straight t :ensure t)
+      (use-package highlight-indentation :straight t :ensure t)
+      (use-package pyvenv :straight t :ensure t)
+      (use-package yasnippet :straight t :ensure t)
+      (use-package s :straight t :ensure t)
+      (add-to-list 'load-path "/home/federix/.emacs.d/elpy")
+      (load "elpy")
+      (load "elpy-rpc")
+      (load "elpy-shell")
+      (load "elpy-profile")
+      (load "elpy-refactor")
+      (load "elpy-django")
+      (elpy-enable))
+  (add-hook 'elpy-mode-hook
+            (lambda () (local-set-key (kbd "M-.") 'elpy-goto-definition)))
+  (use-package elpy
+    :straight t
+    :ensure t
+    :config
+    (elpy-enable)
+    (when (load "flycheck" t t)
+      (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+      (add-hook 'elpy-mode-hook 'flycheck-mode)) ;activate flycheck
+    (add-hook 'elpy-mode-hook
+              (lambda () (local-set-key (kbd "M-.") 'elpy-goto-definition)))
+    ))
 
-(add-to-list 'load-path "/home/federix/.emacs.d/elpy")
-(load "elpy")
-(load "elpy-rpc")
-(load "elpy-shell")
-(load "elpy-profile")
-(load "elpy-refactor")
-(load "elpy-django")
-(elpy-enable)
-
-(add-hook 'elpy-mode-hook
-          (lambda () (local-set-key (kbd "M-.") 'elpy-goto-definition)))
 
 (use-package ein :straight t :ensure t)
 
-;; (when (load "flycheck" t t)
-;;   (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
-;;   (add-hook 'elpy-mode-hook 'flycheck-mode)) ;activate flycheck
-
-;; (use-package pyvenv :straight t)
-;; (use-package virtualenvwrapper :straight t)
-;; (use-package pyenv-mode :straight t)
-
-
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(elpy-disable-backend-error-display nil))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
