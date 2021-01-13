@@ -131,8 +131,22 @@
   :ensure t
   :init (helm-mode)
   :bind (("M-x" . helm-M-x)
-	("C-x C-f" . helm-find-files)))
+	 ("C-x C-f" . helm-find-files)))
 
+(use-package helm-projectile
+  :straight t
+  :ensure t
+  :requires (helm prjectile)
+  :init
+  (projectile-global-mode)
+  (setq projectile-completion-system 'helm)
+  (helm-projectile-on))
+(use-package helm-ag
+  :straight t
+  :config
+  ;; (custom-set-variables
+  ;;  '(helm-follow-mode-persistent t))
+  )
 ;; Git
 (use-package magit :straight t :ensure t)
 (use-package projectile
