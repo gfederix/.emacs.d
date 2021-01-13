@@ -169,6 +169,12 @@
 	 (window-configuration-change . auto-virtualenv-set-virtualenv)
 	 (focus-in .  auto-virtualenv-set-virtualenv)
 	 ))
+;; Snippets
+(use-package yasnippet
+  :straight t
+  :hook (prog-mode . yas-minor-mode))
+(use-package yasnippet-snippets :straight t)
+
 
 ;; Python
 ;; https://www.emacswiki.org/emacs/PythonProgrammingInEmacs
@@ -195,16 +201,16 @@
       (elpy-enable))
   (add-hook 'elpy-mode-hook
             (lambda () (local-set-key (kbd "M-.") 'elpy-goto-definition)))
+;; 
   (use-package elpy
-    :straight t
-    :ensure t
+    :straight (elpy :fork (:host github :repo "gfederix/elpy" :branch "dev"))
     :config
     (elpy-enable)
     (when (load "flycheck" t t)
       (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
       (add-hook 'elpy-mode-hook 'flycheck-mode)) ;activate flycheck
-    (add-hook 'elpy-mode-hook
-              (lambda () (local-set-key (kbd "M-.") 'elpy-goto-definition)))
+    (add-hook
+     'elpy-mode-hook
+     (lambda () (local-set-key (kbd "M-.") 'elpy-goto-definition)))
     ))
-
 (use-package ein :straight t :ensure t)
