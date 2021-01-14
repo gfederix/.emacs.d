@@ -72,6 +72,15 @@
 (use-package highlight-beyond-fill-column
   :load-path "lisp")
 
+(use-package use-ttf
+  :straight t
+  :init
+  (setq use-ttf-default-ttf-fonts
+	(directory-files
+	 (expand-file-name "fonts" user-emacs-directory)
+	 t "\\.[ot]tf"))
+  (use-ttf-install-fonts))
+
 (use-package winum
   :straight t				; C-w [number]
   :ensure t
