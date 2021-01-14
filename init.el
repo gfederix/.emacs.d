@@ -27,6 +27,10 @@
 (add-to-list 'load-path settings-dir)
 (add-to-list 'load-path site-lisp-dir)
 
+;; Write backup files to own directory
+(setq backup-directory-alist
+      `(("." . ,(expand-file-name "backups" user-emacs-directory ))))
+
 ;; Keep emacs Custom-settings in separate file
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 ;; create empy file if it not exist
