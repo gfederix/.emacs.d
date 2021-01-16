@@ -104,11 +104,14 @@
 
 ;; Parentes
 (show-paren-mode)
-(electric-pair-mode)
+;; (electric-pair-mode)
 (use-package rainbow-delimiters
   :straight t
   :ensure t
+  :config
+  (setq-default rainbow-delimiters-depth-1-face "red")
   :hook (prog-mode . rainbow-delimiters-mode))
+
 (use-package smartparens
   :straight t
   :ensure t
@@ -175,13 +178,6 @@
   :ensure t
   :init (global-flycheck-mode))
 
-(use-package pyvenv :straight t :ensure t)
-(use-package auto-virtualenv :straight t :ensure t
-  :requires (pyvenv)
-  :hook ((python-mode .  auto-virtualenv-set-virtualenv)
-	 (window-configuration-change . auto-virtualenv-set-virtualenv)
-	 (focus-in .  auto-virtualenv-set-virtualenv)
-	 ))
 ;; Snippets
 (use-package yasnippet
   :straight t
@@ -196,34 +192,120 @@
 ;;   :straight t
 ;;   :ensure t
 ;;   :init (elpy-enable))
-(setq elpy-from-git nil)
-(if elpy-from-git
-    (progn
-      (use-package company :straight t :ensure t)
-      (use-package highlight-indentation :straight t :ensure t)
-      (use-package pyvenv :straight t :ensure t)
-      (use-package yasnippet :straight t :ensure t)
-      (use-package s :straight t :ensure t)
-      (add-to-list 'load-path "/home/federix/.emacs.d/elpy")
-      (load "elpy")
-      (load "elpy-rpc")
-      (load "elpy-shell")
-      (load "elpy-profile")
-      (load "elpy-refactor")
-      (load "elpy-django")
-      (elpy-enable))
-  (add-hook 'elpy-mode-hook
-            (lambda () (local-set-key (kbd "M-.") 'elpy-goto-definition)))
-;; 
-  (use-package elpy
-    :straight (elpy :fork (:host github :repo "gfederix/elpy" :branch "dev"))
-    :config
-    (elpy-enable)
-    (when (load "flycheck" t t)
-      (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
-      (add-hook 'elpy-mode-hook 'flycheck-mode)) ;activate flycheck
-    (add-hook
-     'elpy-mode-hook
-     (lambda () (local-set-key (kbd "M-.") 'elpy-goto-definition)))
-    ))
+(use-package elpy
+  :straight (elpy :fork (:host github :repo "gfederix/elpy" :branch "dev"))
+  :config
+  (elpy-enable)
+  (when (load "flycheck" t t)
+    (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+    (add-hook 'elpy-mode-hook 'flycheck-mode)) ;activate flycheck
+  (add-hook
+   'elpy-mode-hook
+   (lambda () (local-set-key (kbd "M-.") 'elpy-goto-definition))))
+
+(use-package pyvenv :straight t :ensure t)
+
+(use-package auto-virtualenv :straight t :ensure t
+  :requires (pyvenv)
+  :hook ((python-mode .  auto-virtualenv-set-virtualenv)
+	 (window-configuration-change . auto-virtualenv-set-virtualenv)
+	 (focus-in .  auto-virtualenv-set-virtualenv)
+	 ))
+
+
+(use-package company
+  :straight t
+  :bind
+  (:map company-active-map
+	("C-n" . company-select-next)
+	("C-p" . company-select-previous))
+  ;; :config
+  ;;  (setq company-idle-delay 0
+  ;;      company-minimum-prefix-length 2
+  ;;      company-show-numbers t
+  ;;      company-tooltip-limit 10
+  ;;      company-tooltip-align-annotations t
+  ;;      ;; invert the navigation direction if the the completion popup-isearch-match
+  ;;      ;; is displayed on top (happens near the bottom of windows)
+  ;;      company-tooltip-flip-when-above t)
+   )
+
+(use-package helm-company
+  :straight t
+  :config
+  (progn
+    (define-key company-mode-map (kbd "C-:") 'helm-company)
+    (define-key company-active-map (kbd "C-:") 'helm-company)))
+
+(use-package company-quickhelp
+  ;; Quickhelp may incorrectly place tooltip towards end of buffer
+  ;; See: https://github.com/expez/company-quickhelp/issues/72
+  :straight t
+  :config
+  (company-quickhelp-mode))
+
+(use-package polymode
+  ;; https://www.masteringemacs.org/article/polymode-multiple-major-modes-how-to-use-sql-python-in-one-buffer
+  :straight t
+  :mode ("\.py$" . poly-python-sql-mode)
+  :config
+    (setq polymode-prefix-key (kbd "C-c n"))
+  (define-hostmode poly-python-hostmode :mode 'python-mode)
+
+  (define-innermode poly-sql-expr-python-innermode
+    :mode 'sql-mode
+    :head-matcher (rx "r" (= 3 (char "\"'")) (* (any space)))
+    :tail-matcher (rx (= 3 (char "\"'")))
+    :head-mode 'host
+    :tail-mode 'host)
+
+  (defun poly-python-sql-eval-chunk (beg end msg)
+    "Calls out to `sql-send-region' with the polymode chunk region"
+    (sql-send-region beg end))
+
+  (define-polymode poly-python-sql-mode
+    :hostmode 'poly-python-hostmode
+    :innermodes '(poly-sql-expr-python-innermode)
+    (setq polymode-eval-region-function #'poly-python-sql-eval-chunk)
+    (define-key poly-python-sql-mode-map (kbd "C-c C-c") 'polymode-eval-chunk))
+
+  ;; Bug? Fix polymode kill chunk so it works.
+  (defun polymode-kill-chunk ()
+    "Kill current chunk."
+    (interactive)
+    (pcase (pm-innermost-span)
+      (`(,(or `nil `host) ,beg ,end ,_) (delete-region beg end))
+      (`(body ,beg ,_ ,_)
+       (goto-char beg)
+       (pm--kill-span '(body))
+       ;; (pm--kill-span '(head tail))
+       ;; (pm--kill-span '(head tail))
+       )
+      (`(tail ,beg ,end ,_)
+       (if (eq beg (point-min))
+           (delete-region beg end)
+         (goto-char (1- beg))
+         (polymode-kill-chunk)))
+      (`(head ,_ ,end ,_)
+       (goto-char end)
+       (polymode-kill-chunk))
+      (_ (error "Canoot find chunk to kill")))))
+
+(defun upcase-sql-keywords ()
+  (interactive)
+  (save-excursion
+    (dolist (keywords sql-mode-postgres-font-lock-keywords)
+      (goto-char (point-min))
+      (while (re-search-forward (car keywords) nil t)
+        (goto-char (+ 1 (match-beginning 0)))
+        (when (eql font-lock-keyword-face (face-at-point))
+          (backward-char)
+          (upcase-word 1)
+          (forward-char))))))
+(use-package sqlformat
+  :straight t
+  :config
+  (setq sqlformat-command 'pgformatter)
+  (setq sqlformat-args '("-s2" "-g")))
 (use-package ein :straight t :ensure t)
+
