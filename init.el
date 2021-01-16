@@ -302,10 +302,12 @@
           (backward-char)
           (upcase-word 1)
           (forward-char))))))
+
 (use-package sqlformat
   :straight t
   :config
   (setq sqlformat-command 'pgformatter)
   (setq sqlformat-args '("-s2" "-g")))
+
 (use-package ein :straight t :ensure t)
 
