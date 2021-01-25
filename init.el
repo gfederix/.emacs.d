@@ -85,10 +85,16 @@
 	 t "\\.[ot]tf"))
   (use-ttf-install-fonts))
 
+(use-package zoom
+  :straight t
+  :init
+  (zoom-mode))
+
 (use-package winum
   :straight t				; C-w [number]
   :ensure t
-  :init (winum-mode)
+  :init
+  (winum-mode)
   :bind (:map winum-keymap
 	 ("C-`" . winum-select-window-by-number)
 	 ("M-1" . winum-select-window-1)
@@ -147,7 +153,8 @@
   :ensure t
   :init (helm-mode)
   :bind (("M-x" . helm-M-x)
-	 ("C-x C-f" . helm-find-files)))
+	 ("C-x C-f" . helm-find-files)
+	 ("C-." . helm-imenu)))
 
 (use-package helm-projectile
   :straight t
@@ -185,13 +192,10 @@
 (use-package yasnippet-snippets :straight t)
 
 
-;; Python
+;; Python language
 ;; https://www.emacswiki.org/emacs/PythonProgrammingInEmacs
 ;; https://realpython.com/emacs-the-best-python-editor/
-;; (use-package elpy
-;;   :straight t
-;;   :ensure t
-;;   :init (elpy-enable))
+(use-package ein :straight t :ensure t)
 (use-package elpy
   :straight (elpy :fork (:host github :repo "gfederix/elpy" :branch "dev"))
   :config
@@ -211,7 +215,6 @@
 	 (window-configuration-change . auto-virtualenv-set-virtualenv)
 	 (focus-in .  auto-virtualenv-set-virtualenv)
 	 ))
-
 
 (use-package company
   :straight t
@@ -309,5 +312,20 @@
   (setq sqlformat-command 'pgformatter)
   (setq sqlformat-args '("-s2" "-g")))
 
-(use-package ein :straight t :ensure t)
+(use-package imenu-list
+  :straight t
+  :bind ("C-'" .  #'imenu-list-smart-toggle))
 
+
+;; R language
+(use-package ess
+  :straight t)
+
+(use-package ess-smart-equals
+  :straight t
+  :init   (setq ess-smart-equals-extra-ops '(brace paren percent))
+  :after  (:any ess-r-mode inferior-ess-r-mode ess-r-transcript-mode)
+  :config (ess-smart-equals-activate))
+
+(use-package ess-R-data-view
+  :straight t)
