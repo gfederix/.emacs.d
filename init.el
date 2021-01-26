@@ -87,8 +87,11 @@
 
 (use-package zoom
   :straight t
-  :init
-  (zoom-mode))
+  :config
+  (zoom-mode t)
+  (custom-set-variables
+   '(zoom-size '(0.618 . 0.618)))
+  )
 
 (use-package winum
   :straight t				; C-w [number]
@@ -154,7 +157,8 @@
   :init (helm-mode)
   :bind (("M-x" . helm-M-x)
 	 ("C-x C-f" . helm-find-files)
-	 ("C-." . helm-imenu)))
+	 ("C-." . helm-imenu)
+	 ("C-x r I". helm-register)))
 
 (use-package helm-projectile
   :straight t
