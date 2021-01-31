@@ -238,7 +238,8 @@
   (:map company-active-map
 	("C-n" . company-select-next)
 	("C-p" . company-select-previous))
-  ;; :config
+  :hook
+  (prog-mode . company-mode)
   ;;  (setq company-idle-delay 0
   ;;      company-minimum-prefix-length 2
   ;;      company-show-numbers t
