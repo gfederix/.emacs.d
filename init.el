@@ -116,18 +116,19 @@
 ;; (electric-pair-mode)
 (use-package rainbow-delimiters
   :straight t
-  :ensure t
   :config
-  (setq-default rainbow-delimiters-depth-1-face "red")
+  (custom-set-faces
+   '(rainbow-delimiters-depth-2-face ((t (:foreground "magenta"))))
+   '(rainbow-delimiters-depth-3-face ((t (:foreground "tomato"))))
+   '(rainbow-delimiters-depth-4-face ((t (:foreground "green"))))
+   '(rainbow-delimiters-depth-5-face ((t (:foreground "gold")))))
   :hook (prog-mode . rainbow-delimiters-mode))
 
 (use-package smartparens
   :straight t
-  :ensure t
   :init
   (require 'smartparens-config)
-  :hook (prog-mode . smartparens-mode)
-  )
+  :hook (prog-mode . smartparens-mode))
 
 ;; Line & Column numbers
 (global-linum-mode)
@@ -188,6 +189,17 @@
   :straight t
   :ensure t
   :init (global-flycheck-mode))
+
+;; Spell checking in commentary
+(use-package flyspell
+  :straight t
+  :after flycheck
+  :init
+  :hook (prog-mode . flyspell-prog-mode))
+
+(use-package ispell
+  :init
+  (setq  ispell-program-name "hunspell"))
 
 ;; Snippets
 (use-package yasnippet
