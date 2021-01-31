@@ -211,6 +211,7 @@
 ;; Python language
 ;; https://www.emacswiki.org/emacs/PythonProgrammingInEmacs
 ;; https://realpython.com/emacs-the-best-python-editor/
+
 (use-package ein :straight t :ensure t)
 (use-package elpy
   :straight (elpy :fork (:host github :repo "gfederix/elpy" :branch "dev"))
@@ -231,6 +232,23 @@
 	 (window-configuration-change . auto-virtualenv-set-virtualenv)
 	 (focus-in .  auto-virtualenv-set-virtualenv)
 	 ))
+
+(use-package importmagic
+    :straight t
+    :hook (python-mode . importmagic-mode)
+    :after (elpy)
+    :bind ( :map elpy-mode-map
+	   ("C-c RET" . importmagic-fix-symbol-at-point)
+	   )
+    :config (custom-set-variables
+	     '(importmagic-python-interpreter "python3"))
+    )
+
+(use-package py-isort
+  :straight t
+  :hook ((python-mode . isort-mode)
+	 (before-save py-isort-before-save))
+  )
 
 (use-package company
   :straight t
