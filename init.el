@@ -246,8 +246,8 @@
 
 (use-package py-isort
   :straight t
-  :hook ((python-mode . isort-mode)
-	 (before-save py-isort-before-save))
+  ;; :hook ((python-mode . isort-mode)
+  ;; 	 (before-save py-isort-before-save))
   )
 
 (use-package company
